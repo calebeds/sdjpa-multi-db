@@ -2,6 +2,7 @@ package guruspringframework.sdjpamultidb.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import guruspringframework.sdjpamultidb.domain.creditcard.CreditCard;
+import guruspringframework.sdjpamultidb.domain.pan.CreditCardPAN;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,12 +10,18 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+@EnableJpaRepositories(
+        basePackages = "guruspringframework.sdjpamultidb.repositories.pan",
+        entityManagerFactoryRef = "cardPanEntityManagerFactory",
+        transactionManagerRef = "cardPanTransactionManager"
+)
 @Configuration
 public class PanDatabaseConfiguration {
     @Bean
@@ -38,7 +45,7 @@ public class PanDatabaseConfiguration {
             @Qualifier("cardPanDataSource") DataSource cardPanDataSource,
             EntityManagerFactoryBuilder builder) {
         return builder.dataSource(cardPanDataSource)
-                .packages(CreditCard.class)
+                .packages(CreditCardPAN.class)
                 .persistenceUnit("pan")
                 .build();
     }

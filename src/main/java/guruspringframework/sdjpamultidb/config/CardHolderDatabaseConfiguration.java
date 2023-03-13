@@ -1,6 +1,7 @@
 package guruspringframework.sdjpamultidb.config;
 
 import com.zaxxer.hikari.HikariDataSource;
+import guruspringframework.sdjpamultidb.domain.cardholder.CreditCardHolder;
 import guruspringframework.sdjpamultidb.domain.creditcard.CreditCard;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -8,12 +9,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+@EnableJpaRepositories(
+        basePackages = "guruspringframework.sdjpamultidb.repositories.cardholder",
+        entityManagerFactoryRef = "cardHolderEntityManagerFactory",
+        transactionManagerRef = "cardHolderTransactionManager"
+)
 @Configuration
 public class CardHolderDatabaseConfiguration {
     @Bean
@@ -34,7 +41,7 @@ public class CardHolderDatabaseConfiguration {
             @Qualifier("cardHolderDataSource") DataSource cardHolderDatasource,
             EntityManagerFactoryBuilder builder) {
         return builder.dataSource(cardHolderDatasource)
-                .packages(CreditCard.class)
+                .packages(CreditCardHolder.class)
                 .persistenceUnit("cardholder")
                 .build();
     }
