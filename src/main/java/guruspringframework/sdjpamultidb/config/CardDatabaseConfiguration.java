@@ -9,7 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -23,7 +25,7 @@ public class CardDatabaseConfiguration {
 
     @Bean
     public DataSource cardDataSource(@Qualifier("cardDataSourceProperties") DataSourceProperties cardDataSourceProperties) {
-        return this.cardDataSourceProperties().initializeDataSourceBuilder()
+        return cardDataSourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
     }
@@ -36,5 +38,11 @@ public class CardDatabaseConfiguration {
                 .packages(CreditCard.class)
                 .persistenceUnit("card")
                 .build();
+    }
+
+    @Bean
+    public PlatformTransactionManager cardTransactionManager(
+            @Qualifier("cardEntityManagerFactory") LocalContainerEntityManagerFactoryBean cardEntityManagerFactory) {
+        return new JpaTransactionManager(cardEntityManagerFactory.getObject());
     }
 }

@@ -9,7 +9,9 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -25,18 +27,26 @@ public class PanDatabaseConfiguration {
     @Primary
     @Bean
     public DataSource cardPanDataSource(@Qualifier("cardPanDataSourceProperties") DataSourceProperties cardPanDataSourceProperties) {
-        return this.cardPanDataSourceProperties().initializeDataSourceBuilder()
+        return cardPanDataSourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
     }
 
+    @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean cardPanEntityManagerFactory(
-            @Qualifier("cardPanDataSource") DataSource cardPanDatasource,
+            @Qualifier("cardPanDataSource") DataSource cardPanDataSource,
             EntityManagerFactoryBuilder builder) {
-        return builder.dataSource(cardPanDatasource)
+        return builder.dataSource(cardPanDataSource)
                 .packages(CreditCard.class)
                 .persistenceUnit("pan")
                 .build();
+    }
+
+    @Primary
+    @Bean
+    public PlatformTransactionManager cardPanTransactionManager(
+            @Qualifier("cardPanEntityManagerFactory") LocalContainerEntityManagerFactoryBean cardPanEntityManagerFactory) {
+        return new JpaTransactionManager(cardPanEntityManagerFactory.getObject());
     }
 }
