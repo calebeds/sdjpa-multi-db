@@ -16,6 +16,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @EnableJpaRepositories(
         basePackages = "guruspringframework.sdjpamultidb.repositories.pan",
@@ -45,10 +46,20 @@ public class PanDatabaseConfiguration {
     public LocalContainerEntityManagerFactoryBean cardPanEntityManagerFactory(
             @Qualifier("cardPanDataSource") DataSource cardPanDataSource,
             EntityManagerFactoryBuilder builder) {
-        return builder.dataSource(cardPanDataSource)
+
+        Properties props = new Properties();
+        props.put("hibernate.hbm2ddl.auto", "validate");
+        props.put("hibernate.physical_naming_strategy",
+                "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
+
+        LocalContainerEntityManagerFactoryBean efb = builder.dataSource(cardPanDataSource)
                 .packages(CreditCardPAN.class)
                 .persistenceUnit("pan")
                 .build();
+
+        efb.setJpaProperties(props);
+
+        return efb;
     }
 
     @Primary

@@ -15,6 +15,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @EnableJpaRepositories(
         basePackages = "guruspringframework.sdjpamultidb.repositories.cardholder",
@@ -23,6 +24,9 @@ import javax.sql.DataSource;
 )
 @Configuration
 public class CardHolderDatabaseConfiguration {
+
+
+
     @Bean
     @ConfigurationProperties("spring.cardholder.datasource")
     public DataSourceProperties cardHolderDataSourceProperties() {
@@ -41,10 +45,20 @@ public class CardHolderDatabaseConfiguration {
     public LocalContainerEntityManagerFactoryBean cardHolderEntityManagerFactory(
             @Qualifier("cardHolderDataSource") DataSource cardHolderDatasource,
             EntityManagerFactoryBuilder builder) {
-        return builder.dataSource(cardHolderDatasource)
+
+        Properties props = new Properties();
+        props.put("hibernate.hbm2ddl.auto", "validate");
+        props.put("hibernate.physical_naming_strategy",
+                "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
+
+        LocalContainerEntityManagerFactoryBean efb = builder.dataSource(cardHolderDatasource)
                 .packages(CreditCardHolder.class)
                 .persistenceUnit("cardholder")
                 .build();
+
+        efb.setJpaProperties(props);
+
+        return efb;
     }
 
     @Bean
